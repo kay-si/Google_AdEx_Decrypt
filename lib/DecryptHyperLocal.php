@@ -1,5 +1,6 @@
 <?php
 require_once( __DIR__ . DIRECTORY_SEPARATOR . "Decrypt.php" );
+require_once __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "hyperlocal" . DIRECTORY_SEPARATOR . "autoload.php";
 class DecryptHyperLocal extends Decrypt{
    function __construct($encryption_encoded_key, $integrity_encoded_key){
       $iv_length   = 16;
