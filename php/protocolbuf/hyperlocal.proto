@@ -1,0 +1,25 @@
+message Hyperlocal {
+  // A location on the Earth's surface.
+  //
+  message Point {
+    optional float latitude = 1;
+    optional float longitude = 2;
+  }
+
+  // The mobile device can be at any point inside the geofence polygon defined
+  // by a list of corners.  Currently, the polygon is always a parallelogram
+  // with 4 corners.
+  repeated Point corners = 1;
+}
+
+message HyperlocalSet {
+  // This field currently contains at most one hyperlocal polygon.
+  repeated Hyperlocal hyperlocal = 1;
+
+  // The approximate geometric center of the geofence area.  It is calculated
+  // exclusively based on the geometric shape of the geofence area and in no
+  // way indicates the mobile device's actual location within the geofence
+  // area.  If multiple hyperlocal polygons are specified above then
+  // center_point is the geometric center of all hyperlocal polygons.
+  optional Hyperlocal.Point center_point = 2;
+}
