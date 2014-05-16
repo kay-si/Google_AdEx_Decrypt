@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "realtimebidding" . DIRECTORY_SEPARATOR . "autoload.php";
 class Decrypt{
 
     function __construct( $encryption_encoded_key, $integrity_encoded_key, $iv_length, $is_length, $byte_length ){
@@ -20,6 +21,9 @@ class Decrypt{
         }else{
              return array( "error" => "Wrong Decription" );
         }
+    }
+    public function deserialize_bid_request( $serialized_protocol_buffer ){
+       return (array)( ProtocolBuffers::decode( "BidRequest", $serialized_protocol_buffer ) );
     }
     private function parse_long_ciphertext( $long_ciphertext ){
         $initialization_vector = substr($long_ciphertext, 0,  $this->iv_length);
