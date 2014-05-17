@@ -6,6 +6,11 @@ import time
 import datetime
 from struct import *
 from hashlib import sha1
+import sys,os
+dirname   = os.path.abspath(os.path.dirname(__file__)) 
+dirsep    = os.sep
+sys.path.append(  os.sep.join( [ os.path.dirname(os.path.abspath(__file__)) , '..', 'Realtimebidding', 'protocolbuf' ] ) )
+import realtime_bidding_pb2
 class Decryption:
     def __init__( self, encryption_encoded_key, integrity_encoded_key, iv_length, is_length, byte_length ) :
         self.encryption_key = self._urlsafe_b64decode( encryption_encoded_key );
@@ -25,6 +30,11 @@ class Decryption:
         else :
            return { "error" : "Wrong Decription" };
  
+    def deserialize_bid_request( self, serialized_protocol_buffer ):
+        bid_request = realtime_bidding_pb2.BidRequest();
+        bid_request.ParseFromString( serialized_protocol_buffer ) ;
+        return ( bid_request );
+
     def _parse_long_ciphertext( self, long_ciphertext ):
         initialization_vector = long_ciphertext[ 0:  self.iv_length];
         ciphertext            = long_ciphertext[ self.iv_length: -self.is_length ];
@@ -36,10 +46,10 @@ class Decryption:
         add_iv_counter_byte = True;
         n = 0;
         while( len( ciphertext ) > n * self.byte_length ):
-            data  = ciphertext[ n * self.byte_length: self.byte_length ];
+            data  = ciphertext[ n * self.byte_length: (n+1)*self.byte_length ];
             pad = hmac.new( self.encryption_key, iv , sha1).hexdigest()
-            pad = binascii.unhexlify(pad );
-            byte_array = unpack( str(self.byte_length) + "B", data);
+            pad = binascii.unhexlify(pad );         
+            byte_array = unpack( str(len(data)) + "B", data);
             pad        = unpack("20B", pad );
             for key in range(len(byte_array)) :
                 plaintext.append( chr( byte_array[key] ^ pad[key] ) );
@@ -62,13 +72,15 @@ class Decryption:
         return computedSignature == integrity_signature;
  
     def _add_initialization_vector( self, iv ):
-        arr = unpack("c*" ,iv);
-        res = array();
-        for key in range(arr) :
-            if( count(arr) == key ):
-                value += 1;
-            array_push( res,  pack("c*", arr[key] ));
-        return implode(res );
+        arr = unpack( str( len(iv) ) + "c" ,iv);
+        res = [];
+        for key in range(len(arr)) :
+            value = arr[key]
+            if( len(arr) - 1 == key ):
+                bin_value = pack( "h",int( binascii.hexlify( value ) ) + 1 );
+                value     = unpack( str(len(bin_value)) + "c", bin_value )[0]; 
+            res.append( pack("c", value ));
+        return ''.join(res);
  
     def _get_date( self, iv ):
         sec   = unpack( ">i" , iv[ 0: 4 ] );

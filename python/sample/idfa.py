@@ -20,8 +20,8 @@ print {
     "idfa_hex" : binascii.hexlify( idfa_set["idfa"]),
     "datetime" : idfa_set["datetime"],
 };
-idfa_set = decrypt_idfa.decryption( long_ciphertext["encrypted_hashed_idfa"]  );
+idfa_set = decrypt_idfa.decryption( long_ciphertext["encrypted_advertising_id"]  );
 print {
-    "idfa_hex" : binascii.hexlify( idfa_set["idfa"] ),
+    "android_id_hex" : binascii.hexlify( idfa_set["idfa"] ),
     "datetime" : idfa_set["datetime"],
 };
